@@ -1,0 +1,74 @@
+/*****************************************************************************
+				  Workshop - #5 (Part - 2)>
+Full Name : Hoda Karimi
+Student ID# : 138611223
+ Email : hkarimi9@myseneca.ca
+ Section : NAA
+ File: reflect.txt
+ Date: 
+	Authenticity Declaration :
+I declare this submission is the result of my own work and has not been
+shared with any other student or 3rd party content provider.This submitted
+piece of work is entirely of my own creation.
+* ****************************************************************************/
+1.A functor or function object, overloades ()
+operator and it's an object of a class
+this is how we implement it:
+class SpellChecker {
+public:
+    void operator()(std::string& text) {
+    }
+};
+On the other hand lambda expression has a capture list
+It can link a function to itself and tell it what to do
+Example:
+auto it = std::unique(text.begin(), text.end(), [](char a, char b) {
+    return isspace(a) && isspace(b);
+    });
+
+Functor is used when we need to use a logic again
+in more than one place
+lambda is used for shorter operations
+2.
+ SpellChecker::SpellChecker(const char* filename) {
+     std::ifstream file(filename);
+     if (!file) {
+         throw "Bad file name!";
+     }
+It shows "Bad file name!" If it can't be opened
+
+the alternative approach can be like this:
+ SpellChecker(const char* filename) : m_initialized(false) {
+        std::ifstream file(filename);
+        if (!file) {
+            m_initialized = false;
+            return;
+        }
+        m_initialized = true;
+    }
+    bool isInitialized() const { return m_initialized; }
+};
+EXCEPTION is a faster and shorter way to create an error
+message and be done with it
+On the other hand using flag is simpler control flow
+but we have to go back and check the flag's condition
+3.
+These classes do a lot of similar things, 
+like << operator, and getters
+To avoid duplication, for similar parts,
+I would create a base class and made movie
+and book derive from it, including common fields 
+and then adding additional logic for different
+parts for each modoule
+4.
+We need default constructor when we need
+to create an instance of a class without initilize it
+at that moment, 
+In other words it depends how classes
+are being used outside of the class,
+in this case, main().
+If we can initilize the objects of the class
+everytime, then yes, we can remove it, no harm done.
+This can make the class structure more simple and shorter
+
+
