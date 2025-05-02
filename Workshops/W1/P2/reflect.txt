@@ -1,0 +1,145 @@
+/*****************************************************************************
+                  Workshop - #1 (Reflection)>
+Full Name : Hoda Karimi
+Student ID# : 138611223
+ Email : hkarimi9@myseneca.ca
+ Section : NAA
+ File: reflect.txt
+ Date: May 17 2024
+    Authenticity Declaration :
+I declare this submission is the result of my own work and has not been
+shared with any other student or 3rd party content provider.This submitted
+piece of work is entirely of my own creation.
+* ****************************************************************************/
+Reflect:
+
+1)
+Internal linkage:
+varriable or function is limited to the current translation unit
+External linkage:
+varriable or function can be used in other translation units
+In the code, global varriables, g_taxrate and g_dailydiscount 
+have external linkage, because I used extern keyword for them
+in header file FoodOrder.h
+to be able to be in other translation unit (w1_p2.cpp)
+this is one of the differences between external and internal linkage:
+external uses extern and internal uses static:
+external:
+extern double g_taxrate;
+extern double g_dailydiscount;
+internal: 
+  void FoodOrder::display() const {
+      static int counter = 1;
+In internal linkage, counter id only acessible in
+display function, but can't be accessed from outside
+
+2)
+Static is used for internal linkage, whatever having this
+keyword, will be visible only to the current translation unit, and
+not any other translation unit
+In this code, static is useful because it prevents other parts of
+the program (other than display) to modify it
+and it only initilized once so display function doesn't need to
+reininitilize it
+
+3) since we needed to use something that accepts 
+character of any lenght, we need resource management tools
+which in this case is destructor, copy assignment operator and copy constructor.
+And to do these things, we need dynamic memory allocation
+because it's a run_time thing and we need to get dynamic.
+For the first part we used char array:
+char customerName[11]; 
+char orderDescription[26];
+for the second part, we need to use pointer to character (because remeber, we need to go dynamic):
+char* customerName; 
+char* orderDescription; 
+Default constructor is changing as well. for part 1, we had:
+ FoodOrder::FoodOrder() : price(0.0), isSpecial(false) {
+     customerName[0] = '\0';
+     orderDescription[0] = '\0';
+ }
+because they were fix-sized array, and we set the array to null terminator
+for empty strings
+but now that we are using pointer, we need to set these to approprate things
+in this case, it's nullptr
+ FoodOrder::FoodOrder() : customerName(nullptr), orderDescription(nullptr), 
+     price(0.0), isSpecial(false) {}
+What about read? does it need change as well?
+yes, it does.
+Now that we don't have fixed size array, we need dynamic memory allocation here too.
+So we need to add this to read():  
+   freeMemory(); (I'll explain this soonO
+  customerName = new char[tempName.length() + 1];
+  strcpy(customerName, tempName.c_str());
+  orderDescription = new char[tempDesc.length() + 1];
+  strcpy(orderDescription, tempDesc.c_str());
+now we need some new things, like copy construtor:
+ FoodOrder::FoodOrder(const FoodOrder& other) : 
+     customerName(nullptr), orderDescription(nullptr), price(other.price),
+     isSpecial(other.isSpecial) {
+     if (other.customerName) {
+         customerName = new char[strlen(other.customerName) + 1];
+         strcpy(customerName, other.customerName);
+     }
+     if (other.orderDescription) {
+         orderDescription = new char[strlen(other.orderDescription) + 1];
+         strcpy(orderDescription, other.orderDescription);
+     }
+ }
+as well as a destructor:
+ FoodOrder::~FoodOrder() {
+     freeMemory();
+ } (I grouped the memory deallocations in one functuion(freeMemory) for better readability):
+void FoodOrder::freeMemory() {
+    delete[] customerName;
+    delete[] orderDescription;
+    customerName = nullptr;
+    orderDescription = nullptr;
+}
+and last but not least, copy assignment operator: 
+FoodOrder& FoodOrder::operator=(const FoodOrder& other) {
+    if (this != &other) {
+        freeMemory();
+        price = other.price;
+        isSpecial = other.isSpecial;
+        // Deep copy customerName if it exists
+        if (other.customerName) {
+            customerName = new char[strlen(other.customerName) + 1];
+            strcpy(customerName, other.customerName);
+        }
+        if (other.orderDescription) {
+            orderDescription = new char[strlen(other.orderDescription) + 1];
+            strcpy(orderDescription, other.orderDescription);
+        }
+    }
+    return *this;
+}
+I used strlen because in part 2, we don't know how much character we have.
+
+4)Other things I learned:
+Using command line argument:
+int main(int argc, char * argv[])
+To use this, we need to go to the right menu of
+visual studio, find the name of the project,
+right click, click properties, go to configuration
+properties and choose debugging, go to command arguments
+and type day1.txt day2.txt
+without this, it won't work or we can use command line.
+argc stands for argumant counts, it represend number of command lines
+for example in matrix, if we enter ws day1.txt day2.txt we have 3 command arguments
+argv stands for argument vector. argv[0] is name of the executable and argv[i] is
+the i-th command line argument
+In this code, if we run the code in VS instead of matrix, instead of showing ws,
+it shows the path of executable
+
+
+
+
+
+
+
+
+
+
+
+
