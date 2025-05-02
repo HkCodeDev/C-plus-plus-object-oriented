@@ -1,0 +1,84 @@
+/*****************************************************************************
+                  Workshop - #3 (Part - 2)>
+Full Name : Hoda Karimi
+Student ID# : 138611223
+ Email : hkarimi9@myseneca.ca
+ Section : NAA
+ File: reflect.txt
+ Date: May 29 2024
+    Authenticity Declaration :
+I declare this submission is the result of my own work and has not been
+shared with any other student or 3rd party content provider.This submitted
+piece of work is entirely of my own creation.
+* ****************************************************************************/
+1. What is the reason for defining the class objects outside the class definition?:
+because static members m_smallestItem and m_largestItem
+are defined outside of class definition.
+static members are shared among instances of a class,
+So it is required for them be allocated once, 
+this method makes sure this happens.
+for example in Collenction.h:
+template <typename T, unsigned C>
+T Collection<T, C>::m_smallestItem = 9999;
+this is static member initilization
+another reason is seperating the implementation from the
+interface, which makes it easy to read.
+2.What is the reason for specializing the definition of m_smallestItem and m_largestItem objects for Book and 10:
+template <>
+Book Collection<Book, 10>::m_smallestItem = Book("", 1, 10000);
+When specializing Book with capacity of 10,
+we make sure that m_smallestItem and m_largestItem
+are initilized to meaningful values
+also by specializing we avoid any type difficulty
+template <>
+Book Collection<Book, 72>::m_smallestItem = Book("", 1, 10000);
+
+template <>
+Book Collection<Book, 72>::m_largestItem = Book("", 10000, 1);
+3.m_smallestItem and m_largestItem objects are also initialized for Book and 72. Is this initilization necessary? Why?
+yes, and the reason is making sure the collection doesn't have an unexpected behavior
+and also we have meaningful comparison, too know
+what large and small extrems look like in book
+without these the code might use values
+such as 9999 or -9999 which doesn't make sense
+4.answers to the other questions in these specifications:
+We also specialized print function for Book with
+capacities of 10 and 72:
+  template <>
+  void Collection<Book, 10>::print(std::ostream& os) const {
+      os << "| ---------------------------------------------------------------------------|\n";
+      for (unsigned i = 0; i < m_size; ++i) {
+          os << "| ";
+          m_items[i].print(os) << " |\n";
+      }
+      os << "| ---------------------------------------------------------------------------|\n";
+  }
+  // Specialization of the print function for Book type with capacity 72
+  template <>
+  void Collection<Book, 72>::print(std::ostream& os) const {
+      os << "| ---------------------------------------------------------------------------|\n";
+      for (unsigned i = 0; i < m_size; ++i) {
+          os << "| ";
+          m_items[i].print(os) << " |\n";
+      }
+      os << "| ---------------------------------------------------------------------------|\n";
+  }
+a single comma seperated one would not be very readable,
+so this way, it's easier to read. And it holds the consistancy
+no matter the size of the collection.
+The operator[] in Collection.h is a mutator and it 
+returns a reference to an element in the collection, allowing change to that element. 
+If it was a query, it would return a constant value, which means changing it is not possible.
+when it's a mutator, it allows derived classes(OrderedCollection.h) to change the elements directly, and can
+reorder them: 
+collection.h:
+    template <typename T, unsigned C>
+    T& Collection<T, C>::operator[](unsigned index) {
+        return m_items[index];
+    }
+ordercollection.h:
+while (i > 0 && item < this->m_items[i - 1]) {
+    this->m_items[i] = this->m_items[i - 1]; Shift items to the right
+    --i;
+}
+this->m_items[i] = item;
