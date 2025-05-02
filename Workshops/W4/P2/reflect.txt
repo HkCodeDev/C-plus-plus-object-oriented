@@ -1,0 +1,139 @@
+/*****************************************************************************
+                  Workshop - #4 (Part - 2)>
+Full Name : Hoda Karimi
+Student ID# : 138611223
+ Email : hkarimi9@myseneca.ca
+ Section : NAA
+ File: reflect.txt
+ Date: June 6 2024
+    Authenticity Declaration :
+I declare this submission is the result of my own work and has not been
+shared with any other student or 3rd party content provider.This submitted
+piece of work is entirely of my own creation.
+* ****************************************************************************/
+1.Composition VS Aggregation: implementation:
+Composition is a "has a relationship" which 
+has the complete ownership of the compenent
+and control component's lifetime.
+In Reservation.h, the varriables of class
+Reservation are fully dependent on Reservation object:
+class Reservation {
+    char reservation_id[11];
+    std::string name;
+    std::string email;
+    int party_size;
+    int day;
+    int hour;
+};
+
+On the other hand, Aggregation is a composition without
+controling the lifetime of aggregatee and it's complete even
+without them.
+In this case, In Restaurant and ConfirmationSender, we used
+a pointers to Reservation, which indicates aggregation.
+This object can exist independently from Restaurant
+  class Restaurant {
+      const Reservation** m_pReservations;
+      size_t m_cnt;
+};
+2.Composition Vs Aggregation: Copy and Move:
+In composiotion, we copy all parts of the object
+But in aggregation we only copy poniters(or refrences)
+
+In composition, we transfer ownership from one object
+to another
+But in aggregation, we transfer ownership of pointers
+(or refrences) to external resources
+
+We didn't need to implpement move and copy constructor
+for Reservation, So I don't have a code example
+of it, but in case of aggregation, 
+We have Restaurant
+Restaurant:
+copy constructor:
+  Restaurant& Restaurant::operator=(const Restaurant& other) {
+      if (this != &other) {
+          // Clean-up existing resources
+          for (size_t i = 0; i < m_cnt; ++i) {
+              delete m_pReservations[i];
+          }
+          delete[] m_pReservations;
+
+          // Shallow copy
+          m_cnt = other.m_cnt;
+
+          // Deep copy
+          if (m_cnt > 0) {
+              m_pReservations = new const Reservation * [m_cnt];
+              for (size_t i = 0; i < m_cnt; ++i) {
+                  m_pReservations[i] = new Reservation(*other.m_pReservations[i]);
+              }
+          }
+          else {
+              m_pReservations = nullptr;
+          }
+      }
+      return *this;
+  }
+move: 
+ Restaurant& Restaurant::operator=(Restaurant&& other) noexcept {
+     if (this != &other) {
+         // Clean-up existing resources
+         for (size_t i = 0; i < m_cnt; ++i) {
+             delete m_pReservations[i];
+         }
+         delete[] m_pReservations;
+
+         // Transfer ownership of resources
+         m_pReservations = other.m_pReservations;
+         m_cnt = other.m_cnt;
+
+         // Nullify the other object's pointers to avoid double deletion
+         other.m_pReservations = nullptr;
+         other.m_cnt = 0;
+     }
+     return *this;
+ }
+ 
+It seems that we have aggregation in Restaurant and ConfirmationSender (although they have composion
+relationship with the size_t m_cnt member varriable)
+And composition in Reservation, but there's no association
+3.Using trim function:
+trim is used to remove any spaces in beginning or end:
+start:
+size_t start = 0;
+while (start < str.length() && str[start] == ' ') {
+    ++start;
+}
+end:
+size_t end = str.length();
+while (end > start && str[end - 1] == ' ') {
+    --end;
+}
+
+It finds firt and last non-space character and
+then remove the leading and trailing spaces, creates
+a new string that only holds the non space parts:
+return str.substr(start, end - start);
+How it is used:
+pos = temp.find(':'); here, it finds where's ':'
+std::string id = temp.substr(0, pos);
+id = trim(id); 
+std::strncpy(reservation_id, id.c_str(), 10);
+reservation_id[10] = '\0'; 
+temp.erase(0, pos + 1);
+here:
+std::string id = temp.substr(0, pos);
+pos is the position of ':'.
+for example if we have this:
+RES-001:John Doe,john@example.com,2,14,19
+the ':' is in position 7, so
+when we use temp.substr(0, pos), we will
+extract other parts and will have this: RES-001
+then trim(id) removes the lading/trailing spaces
+
+
+
+
+
+
